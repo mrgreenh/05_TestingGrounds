@@ -84,6 +84,12 @@ void AFirstPersonCharacter::BeginPlay()
 		);
 		//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 		Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));	
+		Gun->AnimInstance = Mesh1P->GetAnimInstance();
+		// Bind fire event
+		if (InputComponent != nullptr) {
+			InputComponent->BindAction("Fire", IE_Pressed, Gun, &AGun::OnFire);
+		}
+
 	}
 	else {
 		UE_LOG(LogTemp, Warning, TEXT("Gun blueprint missing!"));
@@ -114,9 +120,6 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	// Bind fire event
-	//PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AFirstPersonCharacter::OnFire);
-
 	// Enable touchscreen input
 	EnableTouchscreenMovement(PlayerInputComponent);
 
@@ -133,6 +136,7 @@ void AFirstPersonCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAxis("TurnRate", this, &AFirstPersonCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AFirstPersonCharacter::LookUpAtRate);
+	InputComponent = PlayerInputComponent;
 }
 
 void AFirstPersonCharacter::OnResetVR()
